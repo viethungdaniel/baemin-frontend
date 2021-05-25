@@ -45,7 +45,7 @@ let setIntervalUpdate: any = null;
 interface State {
   now: Date;
   dataTables: DataTablesInterface;
-  orders: Orders[];
+  orders: Orders[] | [];
   dTFilterText: string;
   dTResetPaginationToggle: boolean;
   modalFilterShow: boolean;
@@ -55,6 +55,8 @@ interface State {
   totalCancelStatus: number;
   totalOrders: number;
 }
+
+interface Prop {};
 
 const FilterComponent: React.FC<{ 
   filterText: string, 
@@ -85,7 +87,7 @@ const FilterComponent: React.FC<{
   )
 };
 
-class OrdersList extends Component {
+class OrdersList extends Component<Prop> {
   state: State = {
     now: new Date,
     dataTables: {
@@ -93,7 +95,7 @@ class OrdersList extends Component {
     },
     dTFilterText: "",
     dTResetPaginationToggle: false,
-    orders: ordersData.orders,
+    orders: [],
     modalFilterShow: false,
     isFetchingOrders: true,
     totalDoneStatus: 0,
@@ -112,7 +114,7 @@ class OrdersList extends Component {
   // private refFormFilter: React.LegacyRef<FormFilter>;
   private refFormFilter: React.RefObject<FormFilter>;
 
-  constructor(props: any) {
+  constructor(props: Prop) {
     super(props)
     this.refFormFilter = React.createRef();
   }
@@ -341,61 +343,69 @@ class OrdersList extends Component {
       })
       return valid;
     })
+    const dashboard = () => {
+      if ( !this.state.isFetchingOrders ) {
+        return (
+          <Row>
+            <Col md="auto" >
+              <Card >
+                <Card.Body>
+                  <Card.Title className="mb-3 bold">Status</Card.Title>
+                  <div className="row">
+                    {
+                      statusNames.filter( item => !['canceled','done',''].includes(item.value) ).map( (item,index) => {
+                        return (
+                          <div key={index} className="col-auto">
+                            <div className="mb-2">{item.label}</div>
+                            <h4 className="my-0 font-weight-bold text-center">{this.getTotalCurrent(item.value)}/{this.state.totalOrders}</h4>
+                          </div>
+                        )
+                      })
+                    }
+                    <div className="col-auto">
+                      <div className="mb-2">Done</div>
+                      <h4 className="my-0 font-weight-bold text-center">{this.state.totalDoneStatus}/{this.state.totalOrders}</h4>
+                    </div>
+                    <div className="col-auto">
+                      <div className="mb-2">Cancel</div>
+                      <h4 className="my-0 font-weight-bold text-center">{this.state.totalCancelStatus}/{this.state.totalOrders}</h4>
+                    </div>
+                  </div>
+                </Card.Body>
+              </Card>
+            </Col>
+            <Col md="auto" >
+              <Card >
+                <Card.Body>
+                  <Card.Title className="mb-3 bold">Updated time</Card.Title>
+                  <div className="row">
+                    <div className="col-auto">
+                      <div className="mb-2">Normal</div>
+                      <h4 className="my-0 font-weight-bold text-center">{this.trackUpdatedTime('normal')}</h4>
+                    </div>
+                    <div className="col-auto">
+                      <div style={{color: "#FDD835"}} className="mb-2">Warning</div>
+                      <h4 style={{color: "#FDD835"}} className="my-0 font-weight-bold text-center">{this.trackUpdatedTime('warning')}</h4>
+                    </div>
+                    <div className="col-auto">
+                      <div style={{color: "#F4511E"}} className="mb-2">Late</div>
+                      <h4 style={{color: "#F4511E"}} className="my-0 font-weight-bold text-center">{this.trackUpdatedTime('late')}</h4>
+                    </div>
+                  </div>
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
+        )
+      }
+      return <></>
+    }
     return (
       <>
         <NavLink to="/orders/new" className="btn btn-info mb-3">
             Create Orders
         </NavLink>
-        <Row>
-          <Col md="auto" >
-            <Card >
-              <Card.Body>
-                <Card.Title className="mb-3 bold">Status</Card.Title>
-                <div className="row">
-                  {
-                    statusNames.filter( item => !['canceled','done',''].includes(item.value) ).map( (item,index) => {
-                      return (
-                        <div key={index} className="col-auto">
-                          <div className="mb-2">{item.label}</div>
-                          <h4 className="my-0 font-weight-bold text-center">{this.getTotalCurrent(item.value)}/{this.state.totalOrders}</h4>
-                        </div>
-                      )
-                    })
-                  }
-                  <div className="col-auto">
-                    <div className="mb-2">Done</div>
-                    <h4 className="my-0 font-weight-bold text-center">{this.state.totalDoneStatus}/{this.state.totalOrders}</h4>
-                  </div>
-                  <div className="col-auto">
-                    <div className="mb-2">Cancel</div>
-                    <h4 className="my-0 font-weight-bold text-center">{this.state.totalCancelStatus}/{this.state.totalOrders}</h4>
-                  </div>
-                </div>
-              </Card.Body>
-            </Card>
-          </Col>
-          <Col md="auto" >
-            <Card >
-              <Card.Body>
-                <Card.Title className="mb-3 bold">Updated time</Card.Title>
-                <div className="row">
-                  <div className="col-auto">
-                    <div className="mb-2">Normal</div>
-                    <h4 className="my-0 font-weight-bold text-center">{this.trackUpdatedTime('normal')}</h4>
-                  </div>
-                  <div className="col-auto">
-                    <div style={{color: "#FDD835"}} className="mb-2">Warning</div>
-                    <h4 style={{color: "#FDD835"}} className="my-0 font-weight-bold text-center">{this.trackUpdatedTime('warning')}</h4>
-                  </div>
-                  <div className="col-auto">
-                    <div style={{color: "#F4511E"}} className="mb-2">Late</div>
-                    <h4 style={{color: "#F4511E"}} className="my-0 font-weight-bold text-center">{this.trackUpdatedTime('late')}</h4>
-                  </div>
-                </div>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
+        {dashboard()}
         <Card >
           <Card.Body>
             <Card.Title className="mb-3 bold">Orders List</Card.Title>
