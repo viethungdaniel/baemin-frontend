@@ -1,0 +1,8 @@
+.toolbar {
+    display: flex;
+    gap: 8px;
+}
+
+.toolbar >* {
+    flex-basis: auto;
+}
