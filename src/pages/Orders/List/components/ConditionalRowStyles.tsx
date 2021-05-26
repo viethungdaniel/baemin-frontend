@@ -14,8 +14,7 @@ const ConditionalRowStyles = [
                     && updated_time <= warning30min 
                     && updated_time > late40min )
                 return true;
-            } 
-            if ( row.updated_time 
+            } else if ( row.updated_time 
                 && updated_time <= warning10min
                 && updated_time > late15min )
                 return true;
@@ -32,10 +31,9 @@ const ConditionalRowStyles = [
             let late40min = moment().subtract(40, "minutes").toDate();
             if ( row.status === 'delivering' ) {
                 if ( row.updated_time 
-                    && updated_time && updated_time <= late40min )
+                    && updated_time <= late40min )
                 return true;
-            } 
-            if ( row.updated_time 
+            } else if ( row.updated_time 
                 && updated_time <= late15min )
                 return true;
             return false;

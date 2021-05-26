@@ -216,7 +216,7 @@ class OrdersList extends Component<Prop> {
       let orders = this.state.orders.filter( item => {
         let updated_time = new Date(item.updated_time);
         if ( item.status === 'delivering' ) {
-          return item.updated_time && updated_time && updated_time <= late40min;
+          return item.updated_time && updated_time <= late40min;
         } else 
           return item.updated_time && updated_time <= late15min;
       })
