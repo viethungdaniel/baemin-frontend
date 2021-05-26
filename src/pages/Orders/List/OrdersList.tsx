@@ -186,36 +186,39 @@ class OrdersList extends Component<Prop> {
   }
 
   trackUpdatedTime = (status: string) => {
+    let warning10min = moment().subtract(10, "minutes").toDate();
     let late15min = moment().subtract(15, "minutes").toDate();
+    let warning30min = moment().subtract(30, "minutes").toDate();
     let late40min = moment().subtract(40, "minutes").toDate();
-    let late1510min = moment().subtract(15 + 10, "minutes").toDate();
-    let late4030min = moment().subtract(40 + 30, "minutes").toDate();
     if ( status == 'normal' ) {
       let orders = this.state.orders.filter( item => {
+        let updated_time = new Date(item.updated_time);
         if ( item.status === 'delivering' ) {
-          return item.updated_time && new Date(item.updated_time) > late40min;
+          return item.updated_time && updated_time > warning30min;
         } else 
-          return item.updated_time && new Date(item.updated_time) > late15min;
+          return item.updated_time && updated_time > warning10min;
       })
       return orders.length;
     } else if ( status == 'warning' ) {
       let orders = this.state.orders.filter( item => {
+        let updated_time = new Date(item.updated_time);
         if ( item.status === 'delivering' ) {
           return item.updated_time 
-            && new Date(item.updated_time) <= late40min 
-            && new Date(item.updated_time) > late4030min;
+            && updated_time <= warning30min 
+            && updated_time > late40min;
         } else 
           return item.updated_time 
-            && new Date(item.updated_time) <= late15min
-            && new Date(item.updated_time) > late1510min;
+            && updated_time <= warning10min
+            && updated_time > late15min;
       })
       return orders.length;
     } else if ( status == 'late' ) {
       let orders = this.state.orders.filter( item => {
+        let updated_time = new Date(item.updated_time);
         if ( item.status === 'delivering' ) {
-          return item.updated_time && new Date(item.updated_time) <= late4030min;
+          return item.updated_time && updated_time && updated_time <= late40min;
         } else 
-          return item.updated_time && new Date(item.updated_time) <= late1510min;
+          return item.updated_time && updated_time <= late15min;
       })
       return orders.length;
     }

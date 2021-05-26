@@ -126,6 +126,46 @@ class OrdersEdit extends Component<Prop> {
     })
   }
 
+  statusUpdatedTime = () => {
+    if ( !this.state.order ) return 
+    let warning10min = moment().subtract(10, "minutes").toDate();
+    let late15min = moment().subtract(15, "minutes").toDate();
+    let warning30min = moment().subtract(30, "minutes").toDate();
+    let late40min = moment().subtract(40, "minutes").toDate();
+    let updated_time = new Date(this.state.order.updated_time);
+    let status = this.state.order.status;
+
+    if ( status === 'delivering' ) {
+      if ( updated_time > warning30min ) {
+        return null
+      } else if ( updated_time <= warning30min && updated_time > late40min ) {
+        return {
+          color: '#FDD835',
+          label: 'WARNING'
+        }
+      } else {
+        return {
+          color: '#F4511E',
+          label: 'LATE'
+        }
+      }
+    } else {
+      if ( updated_time > warning10min ) {
+        return null
+      } else if ( updated_time <= warning10min && updated_time > late15min ) {
+        return {
+          color: '#FDD835',
+          label: 'WARNING'
+        }
+      } else {
+        return {
+          color: '#F4511E',
+          label: 'LATE'
+        }
+      }
+    }
+  }
+
   renderButtonAction = () => {
     // "created" | "accepted" | "driver_assigned" | "delivering" | "done" | "canceled";
     const acceptBtn = <Button disabled={this.state.isUpdatingOrders} onClick={ () => this.executeAction('accepted') } variant="success">Accept</Button>;
@@ -173,6 +213,13 @@ class OrdersEdit extends Component<Prop> {
         </>
       )
     }
+    const statusUpdatedTime = () => {
+      let sut = this.statusUpdatedTime();
+      if ( !sut ) return null;
+      else return (
+        <span style={{backgroundColor: sut.color, color: "#FFF" }} className={ `ml-1 badge h5 mb-0` }><span className="font-weight-bold">{sut.label}</span></span>
+      )
+    }
     const screenOrdersEdit = () => {
       return (
         <>
@@ -187,6 +234,7 @@ class OrdersEdit extends Component<Prop> {
                       <div className="d-flex align-items-center mb-1">
                         <div>Edit Orders</div> <span className="ml-1 font-weight-bold">ID:{this.state.order?.id}</span> 
                         <span className={ `ml-1 badge badge-info h5 mb-0` }>Status: <span className="font-weight-bold">{statusName(this.state.order?.status).toLocaleUpperCase()}</span></span>
+                        {statusUpdatedTime()}
                       </div>
                       <div>{this.state.order?.updated_time}</div>
                     </Card.Title>
